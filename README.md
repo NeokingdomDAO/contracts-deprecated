@@ -1,3 +1,5 @@
+![Test workflow](https://github.com/NeokingdomDAO/contracts/actions/workflows/node.yml/badge.svg)
+
 # Neokingdom DAO Contracts
 
 Welcome to the Neokingdom DAO Contacts.
