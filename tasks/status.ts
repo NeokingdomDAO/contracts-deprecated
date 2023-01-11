@@ -65,6 +65,7 @@ task("set", "Set the status of an address")
         "ShareholderRegistry"
       );
       const role = `${status.toUpperCase()}_STATUS`;
+      console.log(keccak256(toUtf8Bytes(role)))
       const tx = await contract.setStatus(
         keccak256(toUtf8Bytes(role)),
         account
@@ -72,6 +73,29 @@ task("set", "Set the status of an address")
       console.log("  Submitted tx", tx.hash);
       const receipt = await tx.wait();
       console.log("  Transaction included in block", receipt.blockNumber);
+    }
+  );
+
+  task("get", "Get the status of an address")
+  .addParam("account", "The account address")
+  .setAction(
+    async (
+      {
+        account,
+      }: {
+        account: string;
+      },
+      hre
+    ) => {
+      const contract = await loadContract(
+        hre,
+        ShareholderRegistry__factory,
+        "ShareholderRegistry"
+      );
+      const status = await contract.getStatus(
+        account
+      );
+      console.log(`Status is ${status}`);
     }
   );
 
