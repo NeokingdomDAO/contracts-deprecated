@@ -34,7 +34,7 @@ task("deploy", "Deploy DAO").setAction(async (_, hre) => {
   )) as ShareholderRegistry;
   await exportAddress(hre, shareholderRegistryContract, "ShareholderRegistry");
 
-  const NeokingdomTokenInternalContract = (await deployProxy(
+  const neokingdomTokenInternalContract = (await deployProxy(
     hre,
     deployer,
     "NeokingdomTokenInternal",
@@ -42,7 +42,7 @@ task("deploy", "Deploy DAO").setAction(async (_, hre) => {
   )) as NeokingdomTokenInternal;
   await exportAddress(
     hre,
-    NeokingdomTokenInternalContract,
+    neokingdomTokenInternalContract,
     "NeokingdomTokenInternal"
   );
 
@@ -52,7 +52,7 @@ task("deploy", "Deploy DAO").setAction(async (_, hre) => {
     "ResolutionManager",
     [
       shareholderRegistryContract.address,
-      NeokingdomTokenInternalContract.address,
+      neokingdomTokenInternalContract.address,
       votingContract.address,
     ]
   )) as ResolutionManager;

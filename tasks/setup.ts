@@ -31,7 +31,7 @@ task("setup", "Setup DAO")
       ResolutionManager__factory,
       "ResolutionManager"
     );
-    const NeokingdomTokenInternalContract = await loadContract(
+    const neokingdomTokenInternalContract = await loadContract(
       hre,
       NeokingdomTokenInternal__factory,
       "NeokingdomTokenInternal"
@@ -82,13 +82,13 @@ task("setup", "Setup DAO")
 
     console.log("  NeokingdomTokenInternal");
     console.log("    grant RESOLUTION_ROLE to ResolutionManager");
-    await NeokingdomTokenInternalContract.grantRole(
+    await neokingdomTokenInternalContract.grantRole(
       ROLES.RESOLUTION_ROLE,
       resolutionManagerContract.address
     );
 
     console.log("    grant OPERATOR_ROLE to deployer");
-    let tx = await NeokingdomTokenInternalContract.grantRole(
+    let tx = await neokingdomTokenInternalContract.grantRole(
       ROLES.OPERATOR_ROLE,
       deployer.address
     );
@@ -106,13 +106,13 @@ task("setup", "Setup DAO")
       shareholderRegistryContract.address
     );
     console.log("  Voting set NeokingdomTokenInternal");
-    await votingContract.setToken(NeokingdomTokenInternalContract.address);
+    await votingContract.setToken(neokingdomTokenInternalContract.address);
     console.log("  NeokingdomTokenInternal set ShareholderRegistry");
-    await NeokingdomTokenInternalContract.setShareholderRegistry(
+    await neokingdomTokenInternalContract.setShareholderRegistry(
       shareholderRegistryContract.address
     );
     console.log("  NeokingdomTokenInternal set Voting");
-    await NeokingdomTokenInternalContract.setVoting(votingContract.address);
+    await neokingdomTokenInternalContract.setVoting(votingContract.address);
     console.log("  ShareholderRegistry set Voting");
     await shareholderRegistryContract.setVoting(votingContract.address);
 
@@ -160,22 +160,22 @@ task("setup", "Setup DAO")
 
     console.log("  NeokingdomTokenInternal");
     console.log("    Grant DEFAULT_ADMIN_ROLE to admin");
-    await NeokingdomTokenInternalContract.grantRole(
+    await neokingdomTokenInternalContract.grantRole(
       ROLES.DEFAULT_ADMIN_ROLE,
       adminAddress
     );
     console.log("    Grant OPERATOR_ROLE to admin");
-    await NeokingdomTokenInternalContract.grantRole(
+    await neokingdomTokenInternalContract.grantRole(
       ROLES.OPERATOR_ROLE,
       adminAddress
     );
     console.log("    Grant ESCROW_ROLE to admin");
-    await NeokingdomTokenInternalContract.grantRole(
+    await neokingdomTokenInternalContract.grantRole(
       ROLES.ESCROW_ROLE,
       adminAddress
     );
     console.log("    Grant RESOLUTION_ROLE to admin");
-    await NeokingdomTokenInternalContract.grantRole(
+    await neokingdomTokenInternalContract.grantRole(
       ROLES.RESOLUTION_ROLE,
       adminAddress
     );
@@ -219,12 +219,12 @@ task("setup", "Setup DAO")
 
       console.log("  NeokingdomTokenInternal");
       console.log("    Remove OPERATOR_ROLE to deployer");
-      await NeokingdomTokenInternalContract.renounceRole(
+      await neokingdomTokenInternalContract.renounceRole(
         ROLES.OPERATOR_ROLE,
         deployer.address
       );
       console.log("    Remove DEFAULT_ADMIN_ROLE to deployer");
-      tx = await NeokingdomTokenInternalContract.renounceRole(
+      tx = await neokingdomTokenInternalContract.renounceRole(
         ROLES.DEFAULT_ADMIN_ROLE,
         deployer.address
       );

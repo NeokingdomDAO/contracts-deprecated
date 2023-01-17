@@ -24,7 +24,7 @@ const WEEK = DAY * 7;
 
 describe("NeokingdomTokenInternalSnapshot", () => {
   let RESOLUTION_ROLE: string, OPERATOR_ROLE: string;
-  let NeokingdomTokenInternal: NeokingdomTokenInternal;
+  let neokingdomTokenInternal: NeokingdomTokenInternal;
   let voting: VotingMock;
   let shareholderRegistry: ShareholderRegistryMock;
   let deployer: SignerWithAddress,
@@ -52,24 +52,24 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       deployer
     )) as ShareholderRegistryMock__factory;
 
-    NeokingdomTokenInternal = (await upgrades.deployProxy(
+    neokingdomTokenInternal = (await upgrades.deployProxy(
       NeokingdomTokenInternalFactory,
       ["Test", "TEST"],
       { initializer: "initialize" }
     )) as NeokingdomTokenInternal;
-    await NeokingdomTokenInternal.deployed();
+    await neokingdomTokenInternal.deployed();
 
     voting = (await upgrades.deployProxy(VotingMockFactory)) as VotingMock;
     await voting.deployed();
 
     RESOLUTION_ROLE = await roles.RESOLUTION_ROLE();
-    await NeokingdomTokenInternal.grantRole(RESOLUTION_ROLE, deployer.address);
+    await neokingdomTokenInternal.grantRole(RESOLUTION_ROLE, deployer.address);
 
     OPERATOR_ROLE = await roles.OPERATOR_ROLE();
-    await NeokingdomTokenInternal.grantRole(OPERATOR_ROLE, deployer.address);
+    await neokingdomTokenInternal.grantRole(OPERATOR_ROLE, deployer.address);
 
     const ESCROW_ROLE = await roles.ESCROW_ROLE();
-    await NeokingdomTokenInternal.grantRole(ESCROW_ROLE, deployer.address);
+    await neokingdomTokenInternal.grantRole(ESCROW_ROLE, deployer.address);
 
     shareholderRegistry = (await upgrades.deployProxy(
       ShareholderRegistryMockFactory,
@@ -79,8 +79,8 @@ describe("NeokingdomTokenInternalSnapshot", () => {
     )) as ShareholderRegistryMock;
     await shareholderRegistry.deployed();
 
-    await NeokingdomTokenInternal.setVoting(voting.address);
-    await NeokingdomTokenInternal.setShareholderRegistry(
+    await neokingdomTokenInternal.setVoting(voting.address);
+    await neokingdomTokenInternal.setShareholderRegistry(
       shareholderRegistry.address
     );
 
@@ -112,33 +112,33 @@ describe("NeokingdomTokenInternalSnapshot", () => {
 
   describe("snapshot logic", async () => {
     it("should increase snapshot id", async () => {
-      await NeokingdomTokenInternal.snapshot();
+      await neokingdomTokenInternal.snapshot();
       let snapshotIdBefore =
-        await NeokingdomTokenInternal.getCurrentSnapshotId();
-      await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.getCurrentSnapshotId();
+      await neokingdomTokenInternal.snapshot();
       let snapshotIdAfter =
-        await NeokingdomTokenInternal.getCurrentSnapshotId();
+        await neokingdomTokenInternal.getCurrentSnapshotId();
 
       expect(snapshotIdBefore.toNumber()).lessThan(snapshotIdAfter.toNumber());
     });
 
     describe("balanceOfAt", async () => {
       it("should return the balance at the time of the snapshot - mint", async () => {
-        await NeokingdomTokenInternal.mint(contributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(contributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.mint(contributor.address, 3);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(contributor.address, 3);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceBefore = await neokingdomTokenInternal.balanceOfAt(
           contributor.address,
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceAfter = await neokingdomTokenInternal.balanceOfAt(
           contributor.address,
           snapshotIdAfter
         );
@@ -148,25 +148,24 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       });
 
       it("should return the balance at the time of the snapshot - transfer send", async () => {
-        await NeokingdomTokenInternal.mint(nonContributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.connect(nonContributor).transfer(
-          contributor.address,
-          3
-        );
+        await neokingdomTokenInternal
+          .connect(nonContributor)
+          .transfer(contributor.address, 3);
 
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceBefore = await neokingdomTokenInternal.balanceOfAt(
           nonContributor.address,
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceAfter = await neokingdomTokenInternal.balanceOfAt(
           nonContributor.address,
           snapshotIdAfter
         );
@@ -176,26 +175,25 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       });
 
       it("should return the balance at the time of the snapshot - transfer receive", async () => {
-        await NeokingdomTokenInternal.mint(nonContributor.address, 10);
-        await NeokingdomTokenInternal.mint(contributor.address, 3);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 10);
+        await neokingdomTokenInternal.mint(contributor.address, 3);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.connect(nonContributor).transfer(
-          contributor.address,
-          4
-        );
+        await neokingdomTokenInternal
+          .connect(nonContributor)
+          .transfer(contributor.address, 4);
 
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceBefore = await neokingdomTokenInternal.balanceOfAt(
           contributor.address,
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceAfter = await neokingdomTokenInternal.balanceOfAt(
           contributor.address,
           snapshotIdAfter
         );
@@ -205,22 +203,22 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       });
 
       it("should return the balance at the time of the snapshot - burn", async () => {
-        await NeokingdomTokenInternal.mint(nonContributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.burn(nonContributor.address, 4);
+        await neokingdomTokenInternal.burn(nonContributor.address, 4);
 
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceBefore = await neokingdomTokenInternal.balanceOfAt(
           nonContributor.address,
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.balanceOfAt(
+        const balanceAfter = await neokingdomTokenInternal.balanceOfAt(
           nonContributor.address,
           snapshotIdAfter
         );
@@ -232,20 +230,20 @@ describe("NeokingdomTokenInternalSnapshot", () => {
 
     describe("totalSupplyAt", async () => {
       it("should return the totalSupply at the time of the snapshot - mint", async () => {
-        await NeokingdomTokenInternal.mint(contributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(contributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.mint(nonContributor.address, 3);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 3);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceBefore = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceAfter = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdAfter
         );
 
@@ -254,23 +252,22 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       });
 
       it("should return the totalSupply at the time of the snapshot - transfer", async () => {
-        await NeokingdomTokenInternal.mint(nonContributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.connect(nonContributor).transfer(
-          contributor.address,
-          3
-        );
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal
+          .connect(nonContributor)
+          .transfer(contributor.address, 3);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceBefore = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceAfter = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdAfter
         );
 
@@ -279,20 +276,20 @@ describe("NeokingdomTokenInternalSnapshot", () => {
       });
 
       it("should return the totalSupply at the time of the snapshot - burn", async () => {
-        await NeokingdomTokenInternal.mint(nonContributor.address, 10);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.mint(nonContributor.address, 10);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdBefore =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        await NeokingdomTokenInternal.burn(nonContributor.address, 7);
-        await NeokingdomTokenInternal.snapshot();
+        await neokingdomTokenInternal.burn(nonContributor.address, 7);
+        await neokingdomTokenInternal.snapshot();
         const snapshotIdAfter =
-          await NeokingdomTokenInternal.getCurrentSnapshotId();
+          await neokingdomTokenInternal.getCurrentSnapshotId();
 
-        const balanceBefore = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceBefore = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdBefore
         );
-        const balanceAfter = await NeokingdomTokenInternal.totalSupplyAt(
+        const balanceAfter = await neokingdomTokenInternal.totalSupplyAt(
           snapshotIdAfter
         );
 
