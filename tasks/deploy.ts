@@ -4,7 +4,7 @@ import {
   Voting,
   ResolutionManager,
   ShareholderRegistry,
-  NeokingdomToken,
+  NeokingdomTokenInternal,
   PriceOracle__factory,
 } from "../typechain";
 import { exportAddress } from "./config";
@@ -34,13 +34,17 @@ task("deploy", "Deploy DAO").setAction(async (_, hre) => {
   )) as ShareholderRegistry;
   await exportAddress(hre, shareholderRegistryContract, "ShareholderRegistry");
 
-  const neokingdomTokenContract = (await deployProxy(
+  const NeokingdomTokenInternalContract = (await deployProxy(
     hre,
     deployer,
-    "NeokingdomToken",
+    "NeokingdomTokenInternal",
     ["Neokingdom DAO Token V0", "NEOK"]
-  )) as NeokingdomToken;
-  await exportAddress(hre, neokingdomTokenContract, "NeokingdomToken");
+  )) as NeokingdomTokenInternal;
+  await exportAddress(
+    hre,
+    NeokingdomTokenInternalContract,
+    "NeokingdomTokenInternal"
+  );
 
   const resolutionManagerContract = (await deployProxy(
     hre,
@@ -48,7 +52,7 @@ task("deploy", "Deploy DAO").setAction(async (_, hre) => {
     "ResolutionManager",
     [
       shareholderRegistryContract.address,
-      neokingdomTokenContract.address,
+      NeokingdomTokenInternalContract.address,
       votingContract.address,
     ]
   )) as ResolutionManager;

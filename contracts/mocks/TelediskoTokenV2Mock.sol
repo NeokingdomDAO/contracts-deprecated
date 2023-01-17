@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "../NeokingdomToken/NeokingdomToken.sol";
+import "../NeokingdomTokenInternal/NeokingdomTokenInternal.sol";
 import "../extensions/Roles.sol";
 
-contract NeokingdomTokenV2Mock is NeokingdomToken {
+contract NeokingdomTokenInternalV2Mock is NeokingdomTokenInternal {
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -20,7 +20,7 @@ contract NeokingdomTokenV2Mock is NeokingdomToken {
             _drainOffers(from, address(0), 0);
             require(
                 amount <= _unlockedBalance[from],
-                "NeokingdomToken: transfer amount exceeds unlocked tokens"
+                "NeokingdomTokenInternal: transfer amount exceeds unlocked tokens"
             );
         }
     }

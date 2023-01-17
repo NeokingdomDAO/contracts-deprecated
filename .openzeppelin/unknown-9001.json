@@ -678,40 +678,40 @@
             "offset": 0,
             "slot": "101",
             "type": "t_contract(IVoting)8160",
-            "contract": "NeokingdomTokenBase",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenBase.sol:10"
+            "contract": "NeokingdomTokenInternalBase",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalBase.sol:10"
           },
           {
             "label": "_shareholderRegistry",
             "offset": 0,
             "slot": "102",
             "type": "t_contract(IShareholderRegistry)7149",
-            "contract": "NeokingdomTokenBase",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenBase.sol:11"
+            "contract": "NeokingdomTokenInternalBase",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalBase.sol:11"
           },
           {
             "label": "_vestingBalance",
             "offset": 0,
             "slot": "103",
             "type": "t_mapping(t_address,t_uint256)",
-            "contract": "NeokingdomTokenBase",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenBase.sol:56"
+            "contract": "NeokingdomTokenInternalBase",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalBase.sol:56"
           },
           {
             "label": "_unlockedBalance",
             "offset": 0,
             "slot": "104",
             "type": "t_mapping(t_address,t_uint256)",
-            "contract": "NeokingdomTokenBase",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenBase.sol:57"
+            "contract": "NeokingdomTokenInternalBase",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalBase.sol:57"
           },
           {
             "label": "_offers",
             "offset": 0,
             "slot": "105",
             "type": "t_mapping(t_address,t_struct(Offers)4665_storage)",
-            "contract": "NeokingdomTokenBase",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenBase.sol:58"
+            "contract": "NeokingdomTokenInternalBase",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalBase.sol:58"
           },
           {
             "label": "_currentSnapshotId",
@@ -726,16 +726,16 @@
             "offset": 0,
             "slot": "107",
             "type": "t_mapping(t_address,t_struct(Snapshots)5343_storage)",
-            "contract": "NeokingdomTokenSnapshot",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenSnapshot.sol:17"
+            "contract": "NeokingdomTokenInternalSnapshot",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalSnapshot.sol:17"
           },
           {
             "label": "_totalSupplySnapshots",
             "offset": 0,
             "slot": "108",
             "type": "t_struct(Snapshots)5343_storage",
-            "contract": "NeokingdomTokenSnapshot",
-            "src": "contracts/NeokingdomToken/NeokingdomTokenSnapshot.sol:18"
+            "contract": "NeokingdomTokenInternalSnapshot",
+            "src": "contracts/NeokingdomTokenInternal/NeokingdomTokenInternalSnapshot.sol:18"
           },
           {
             "label": "__gap",
@@ -808,11 +808,11 @@
             "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_struct(Offers)4665_storage)": {
-            "label": "mapping(address => struct NeokingdomTokenBase.Offers)",
+            "label": "mapping(address => struct NeokingdomTokenInternalBase.Offers)",
             "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_struct(Snapshots)5343_storage)": {
-            "label": "mapping(address => struct NeokingdomTokenSnapshot.Snapshots)",
+            "label": "mapping(address => struct NeokingdomTokenInternalSnapshot.Snapshots)",
             "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_uint256)": {
@@ -824,7 +824,7 @@
             "numberOfBytes": "32"
           },
           "t_mapping(t_uint128,t_struct(Offer)4655_storage)": {
-            "label": "mapping(uint128 => struct NeokingdomTokenBase.Offer)",
+            "label": "mapping(uint128 => struct NeokingdomTokenInternalBase.Offer)",
             "numberOfBytes": "32"
           },
           "t_string_storage": {
@@ -832,7 +832,7 @@
             "numberOfBytes": "32"
           },
           "t_struct(Offer)4655_storage": {
-            "label": "struct NeokingdomTokenBase.Offer",
+            "label": "struct NeokingdomTokenInternalBase.Offer",
             "members": [
               {
                 "label": "expiration",
@@ -850,7 +850,7 @@
             "numberOfBytes": "64"
           },
           "t_struct(Offers)4665_storage": {
-            "label": "struct NeokingdomTokenBase.Offers",
+            "label": "struct NeokingdomTokenInternalBase.Offers",
             "members": [
               {
                 "label": "start",
@@ -892,7 +892,7 @@
             "numberOfBytes": "64"
           },
           "t_struct(Snapshots)5343_storage": {
-            "label": "struct NeokingdomTokenSnapshot.Snapshots",
+            "label": "struct NeokingdomTokenInternalSnapshot.Snapshots",
             "members": [
               {
                 "label": "ids",
@@ -972,10 +972,10 @@
             "src": "contracts/ResolutionManager/ResolutionManager.sol:17"
           },
           {
-            "label": "_neokingdomToken",
+            "label": "_NeokingdomTokenInternal",
             "offset": 0,
             "slot": "4",
-            "type": "t_contract(INeokingdomToken)4442",
+            "type": "t_contract(INeokingdomTokenInternal)4442",
             "contract": "ResolutionManager",
             "src": "contracts/ResolutionManager/ResolutionManager.sol:18"
           },
@@ -1033,8 +1033,8 @@
             "label": "bytes",
             "numberOfBytes": "32"
           },
-          "t_contract(INeokingdomToken)4442": {
-            "label": "contract INeokingdomToken",
+          "t_contract(INeokingdomTokenInternal)4442": {
+            "label": "contract INeokingdomTokenInternal",
             "numberOfBytes": "20"
           },
           "t_contract(IShareholderRegistry)7149": {

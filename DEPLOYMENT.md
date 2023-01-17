@@ -100,7 +100,7 @@ Neokingdom DAO is an Estonian OÜ with an initial capital of 10,000 shares. To m
 
 - Open the SAFE, apps, and open the transaction builder
 - In the form:
-    - insert the address of the `NeokingdomToken`
+    - insert the address of the `NeokingdomTokenInternal`
     - insert the ABI
     - in transaction information:.
 - Execute the transaction

@@ -6,14 +6,14 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "../Voting/IVoting.sol";
 import "../ShareholderRegistry/IShareholderRegistry.sol";
 
-contract NeokingdomTokenBase is ERC20Upgradeable {
+contract NeokingdomTokenInternalBase is ERC20Upgradeable {
     IVoting internal _voting;
     IShareholderRegistry internal _shareholderRegistry;
 
-    function initialize(string memory name, string memory symbol)
-        public
-        virtual
-    {
+    function initialize(
+        string memory name,
+        string memory symbol
+    ) public virtual {
         __ERC20_init(name, symbol);
     }
 
@@ -28,10 +28,10 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
         mapping(uint128 => Offer) offer;
     }
 
-    function _enqueue(Offers storage offers, Offer memory offer)
-        internal
-        returns (uint128)
-    {
+    function _enqueue(
+        Offers storage offers,
+        Offer memory offer
+    ) internal returns (uint128) {
         offers.offer[offers.end] = offer;
         return offers.end++;
     }
@@ -61,10 +61,9 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
         _voting = voting;
     }
 
-    function _setShareholderRegistry(IShareholderRegistry shareholderRegistry)
-        internal
-        virtual
-    {
+    function _setShareholderRegistry(
+        IShareholderRegistry shareholderRegistry
+    ) internal virtual {
         _shareholderRegistry = shareholderRegistry;
     }
 
@@ -76,7 +75,7 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
                 balanceOf(account) -
                     _vestingBalance[account] -
                     _unlockedBalance[account],
-            "NeokingdomToken: offered amount exceeds balance"
+            "NeokingdomTokenInternal: offered amount exceeds balance"
         );
         uint256 expiration = block.timestamp + OFFER_EXPIRATION;
         uint128 id = _enqueue(_offers[account], Offer(expiration, amount));
@@ -136,7 +135,7 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
             }
         }
 
-        require(amount == 0, "NeokingdomToken: amount exceeds offer");
+        require(amount == 0, "NeokingdomTokenInternal: amount exceeds offer");
     }
 
     function _beforeTokenTransfer(
@@ -155,7 +154,7 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
             _drainOffers(from, address(0), 0);
             require(
                 amount <= _unlockedBalance[from],
-                "NeokingdomToken: transfer amount exceeds unlocked tokens"
+                "NeokingdomTokenInternal: transfer amount exceeds unlocked tokens"
             );
         }
     }
@@ -171,7 +170,7 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
         // Invariants
         require(
             balanceOf(from) >= _vestingBalance[from],
-            "NeokingdomToken: transfer amount exceeds vesting"
+            "NeokingdomTokenInternal: transfer amount exceeds vesting"
         );
 
         if (
@@ -203,7 +202,7 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
     function _setVesting(address account, uint256 amount) internal virtual {
         require(
             amount < _vestingBalance[account],
-            "NeokingdomToken: vesting can only be decreased"
+            "NeokingdomTokenInternal: vesting can only be decreased"
         );
         _vestingBalance[account] = amount;
         emit VestingSet(account, amount);
@@ -215,17 +214,14 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
                 _shareholderRegistry.CONTRIBUTOR_STATUS(),
                 _msgSender()
             ),
-            "NeokingdomToken: not a contributor"
+            "NeokingdomTokenInternal: not a contributor"
         );
         _createOffer(_msgSender(), amount);
     }
 
-    function _calculateOffersOf(address account)
-        internal
-        view
-        virtual
-        returns (uint256, uint256)
-    {
+    function _calculateOffersOf(
+        address account
+    ) internal view virtual returns (uint256, uint256) {
         Offers storage offers = _offers[account];
 
         uint256 unlocked = _unlockedBalance[account];
@@ -244,22 +240,16 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
     }
 
     // Tokens that are still in the vesting phase
-    function vestingBalanceOf(address account)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function vestingBalanceOf(
+        address account
+    ) public view virtual returns (uint256) {
         return _vestingBalance[account];
     }
 
     // Tokens owned by a contributor that cannot be freely transferred (see SHA Article 10)
-    function lockedBalanceOf(address account)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function lockedBalanceOf(
+        address account
+    ) public view virtual returns (uint256) {
         if (
             _shareholderRegistry.isAtLeast(
                 _shareholderRegistry.CONTRIBUTOR_STATUS(),
@@ -274,12 +264,9 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
     }
 
     // Tokens owned by a contributor that are offered to other contributors
-    function offeredBalanceOf(address account)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function offeredBalanceOf(
+        address account
+    ) public view virtual returns (uint256) {
         if (
             _shareholderRegistry.isAtLeast(
                 _shareholderRegistry.CONTRIBUTOR_STATUS(),
@@ -295,12 +282,9 @@ contract NeokingdomTokenBase is ERC20Upgradeable {
 
     // Tokens that has been offered but not bought by any other contributor
     // within the allowed timeframe.
-    function unlockedBalanceOf(address account)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function unlockedBalanceOf(
+        address account
+    ) public view virtual returns (uint256) {
         if (
             _shareholderRegistry.isAtLeast(
                 _shareholderRegistry.CONTRIBUTOR_STATUS(),

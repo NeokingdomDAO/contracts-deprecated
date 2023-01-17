@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../ShareholderRegistry/IShareholderRegistry.sol";
-import "../NeokingdomToken/INeokingdomToken.sol";
+import "../NeokingdomTokenInternal/INeokingdomTokenInternal.sol";
 import "../Voting/IVoting.sol";
 import "../extensions/Roles.sol";
 import "hardhat/console.sol";
@@ -15,7 +15,7 @@ contract ResolutionManager is Initializable, Context, AccessControl {
     uint256 internal _currentResolutionId;
 
     IShareholderRegistry internal _shareholderRegistry;
-    INeokingdomToken internal _neokingdomToken;
+    INeokingdomTokenInternal internal _NeokingdomTokenInternal;
     IVoting internal _voting;
 
     event ResolutionCreated(address indexed from, uint256 indexed resolutionId);
@@ -80,11 +80,11 @@ contract ResolutionManager is Initializable, Context, AccessControl {
 
     function initialize(
         IShareholderRegistry shareholderRegistry,
-        INeokingdomToken neokingdomToken,
+        INeokingdomTokenInternal NeokingdomTokenInternal,
         IVoting voting
     ) public initializer {
         _shareholderRegistry = shareholderRegistry;
-        _neokingdomToken = neokingdomToken;
+        _NeokingdomTokenInternal = NeokingdomTokenInternal;
         _voting = voting;
 
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -144,33 +144,27 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         );
     }
 
-    function setShareholderRegistry(IShareholderRegistry shareholderRegistry)
-        external
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
+    function setShareholderRegistry(
+        IShareholderRegistry shareholderRegistry
+    ) external virtual onlyRole(Roles.OPERATOR_ROLE) {
         _shareholderRegistry = shareholderRegistry;
     }
 
-    function setNeokingdomToken(INeokingdomToken neokingdomToken)
-        external
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
-        _neokingdomToken = neokingdomToken;
+    function setNeokingdomTokenInternal(
+        INeokingdomTokenInternal NeokingdomTokenInternal
+    ) external virtual onlyRole(Roles.OPERATOR_ROLE) {
+        _NeokingdomTokenInternal = NeokingdomTokenInternal;
     }
 
-    function setVoting(IVoting voting)
-        external
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
+    function setVoting(
+        IVoting voting
+    ) external virtual onlyRole(Roles.OPERATOR_ROLE) {
         _voting = voting;
     }
 
     function _snapshotAll() internal virtual returns (uint256) {
         _shareholderRegistry.snapshot();
-        _neokingdomToken.snapshot();
+        _NeokingdomTokenInternal.snapshot();
         return _voting.snapshot();
     }
 
@@ -212,12 +206,9 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         return resolutionId;
     }
 
-    function approveResolution(uint256 resolutionId)
-        public
-        virtual
-        onlyPending(resolutionId)
-        exists(resolutionId)
-    {
+    function approveResolution(
+        uint256 resolutionId
+    ) public virtual onlyPending(resolutionId) exists(resolutionId) {
         require(
             _shareholderRegistry.isAtLeast(
                 _shareholderRegistry.MANAGING_BOARD_STATUS(),
@@ -232,12 +223,9 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         emit ResolutionApproved(_msgSender(), resolutionId);
     }
 
-    function rejectResolution(uint256 resolutionId)
-        public
-        virtual
-        onlyPending(resolutionId)
-        exists(resolutionId)
-    {
+    function rejectResolution(
+        uint256 resolutionId
+    ) public virtual onlyPending(resolutionId) exists(resolutionId) {
         require(
             _shareholderRegistry.isAtLeast(
                 _shareholderRegistry.MANAGING_BOARD_STATUS(),
@@ -322,25 +310,22 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         emit ResolutionExecuted(_msgSender(), resolutionId);
     }
 
-    function getExecutionDetails(uint256 resolutionId)
-        public
-        view
-        returns (address[] memory, bytes[] memory)
-    {
+    function getExecutionDetails(
+        uint256 resolutionId
+    ) public view returns (address[] memory, bytes[] memory) {
         Resolution storage resolution = resolutions[resolutionId];
 
         return (resolution.executionTo, resolution.executionData);
     }
 
-    function getVoterVote(uint256 resolutionId, address voter)
+    function getVoterVote(
+        uint256 resolutionId,
+        address voter
+    )
         public
         view
         virtual
-        returns (
-            bool isYes,
-            bool hasVoted,
-            uint256 votingPower
-        )
+        returns (bool isYes, bool hasVoted, uint256 votingPower)
     {
         Resolution storage resolution = resolutions[resolutionId];
         require(
@@ -355,7 +340,7 @@ contract ResolutionManager is Initializable, Context, AccessControl {
             _voting.getDelegateAt(voter, resolution.snapshotId) != voter &&
             hasVoted
         ) {
-            votingPower = _neokingdomToken.balanceOfAt(
+            votingPower = _NeokingdomTokenInternal.balanceOfAt(
                 voter,
                 resolution.snapshotId
             );
@@ -366,12 +351,9 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         }
     }
 
-    function getResolutionResult(uint256 resolutionId)
-        public
-        view
-        virtual
-        returns (bool)
-    {
+    function getResolutionResult(
+        uint256 resolutionId
+    ) public view virtual returns (bool) {
         Resolution storage resolution = resolutions[resolutionId];
         ResolutionType storage resolutionType = resolutionTypes[
             resolution.resolutionTypeId
@@ -416,9 +398,9 @@ contract ResolutionManager is Initializable, Context, AccessControl {
             resolution.snapshotId
         );
 
-        // If sender has a delegate load voting power from NeokingdomToken
+        // If sender has a delegate load voting power from NeokingdomTokenInternal
         if (delegate != _msgSender()) {
-            votingPower = _neokingdomToken.balanceOfAt(
+            votingPower = _NeokingdomTokenInternal.balanceOfAt(
                 _msgSender(),
                 resolution.snapshotId
             );
@@ -454,12 +436,9 @@ contract ResolutionManager is Initializable, Context, AccessControl {
         resolution.hasVotedYes[_msgSender()] = isYes;
     }
 
-    function _votingWindow(Resolution storage resolution)
-        internal
-        view
-        virtual
-        returns (uint256 _votingStart, uint256 _votingEnd)
-    {
+    function _votingWindow(
+        Resolution storage resolution
+    ) internal view virtual returns (uint256 _votingStart, uint256 _votingEnd) {
         ResolutionType storage resolutionType = resolutionTypes[
             resolution.resolutionTypeId
         ];

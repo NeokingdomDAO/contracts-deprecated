@@ -3,7 +3,7 @@ import { keccak256, parseEther, toUtf8Bytes } from "ethers/lib/utils";
 import { loadContract } from "./config";
 import {
   ShareholderRegistry__factory,
-  NeokingdomToken__factory,
+  NeokingdomTokenInternal__factory,
 } from "../typechain";
 import { readFileSync } from "fs";
 
@@ -65,7 +65,7 @@ task("set", "Set the status of an address")
         "ShareholderRegistry"
       );
       const role = `${status.toUpperCase()}_STATUS`;
-      console.log(keccak256(toUtf8Bytes(role)))
+      console.log(keccak256(toUtf8Bytes(role)));
       const tx = await contract.setStatus(
         keccak256(toUtf8Bytes(role)),
         account
@@ -76,7 +76,7 @@ task("set", "Set the status of an address")
     }
   );
 
-  task("get", "Get the status of an address")
+task("get", "Get the status of an address")
   .addParam("account", "The account address")
   .setAction(
     async (
@@ -92,9 +92,7 @@ task("set", "Set the status of an address")
         ShareholderRegistry__factory,
         "ShareholderRegistry"
       );
-      const status = await contract.getStatus(
-        account
-      );
+      const status = await contract.getStatus(account);
       console.log(`Status is ${status}`);
     }
   );
@@ -106,8 +104,8 @@ task("mint", "Mint neokingdom tokens to an address")
     async ({ account, amount }: { account: string; amount: string }, hre) => {
       const contract = await loadContract(
         hre,
-        NeokingdomToken__factory,
-        "NeokingdomToken"
+        NeokingdomTokenInternal__factory,
+        "NeokingdomTokenInternal"
       );
       const tx = await contract.mint(account, parseEther(amount));
       console.log("  Submitted tx", tx.hash);
@@ -123,8 +121,8 @@ task("mint-vesting", "Mint neokingdom tokens to an address, vesting")
     async ({ account, amount }: { account: string; amount: string }, hre) => {
       const contract = await loadContract(
         hre,
-        NeokingdomToken__factory,
-        "NeokingdomToken"
+        NeokingdomTokenInternal__factory,
+        "NeokingdomTokenInternal"
       );
       const tx = await contract.mintVesting(account, parseEther(amount));
       console.log("  Submitted tx", tx.hash);

@@ -5,11 +5,11 @@ import { solidity } from "ethereum-waffle";
 import {
   ShareholderRegistry,
   Voting,
-  NeokingdomToken,
+  NeokingdomTokenInternal,
   ResolutionManager,
   ResolutionManagerV2Mock__factory,
-  NeokingdomTokenV2Mock__factory,
-  NewNeokingdomTokenMock__factory,
+  NeokingdomTokenInternalV2Mock__factory,
+  NewNeokingdomTokenInternalMock__factory,
 } from "../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { setEVMTimestamp, getEVMTimestamp, mineEVMBlock } from "./utils/evm";
@@ -24,7 +24,7 @@ const DAY = 60 * 60 * 24;
 
 describe("Upgrade", () => {
   let voting: Voting;
-  let token: NeokingdomToken;
+  let token: NeokingdomTokenInternal;
   let shareholderRegistry: ShareholderRegistry;
   let resolution: ResolutionManager;
   let managingBoardStatus: string,
@@ -137,7 +137,7 @@ describe("Upgrade", () => {
     });
 
     it("should change contract logic", async () => {
-      // Prevents also shareholder from transfering their tokens on NeokingdomToken
+      // Prevents also shareholder from transfering their tokens on NeokingdomTokenInternal
       await shareholderRegistry.mint(user1.address, parseEther("1"));
       await shareholderRegistry.setStatus(contributorStatus, user1.address);
       await _mintTokens(user1, 42);
@@ -148,27 +148,34 @@ describe("Upgrade", () => {
 
       await expect(
         token.connect(user1).transfer(user2.address, 1)
-      ).revertedWith("NeokingdomToken: transfer amount exceeds unlocked tokens");
+      ).revertedWith(
+        "NeokingdomTokenInternal: transfer amount exceeds unlocked tokens"
+      );
 
       await token.connect(user2).transfer(user1.address, 1);
 
-      const NeokingdomTokenV2MockFactory = (await ethers.getContractFactory(
-        "NeokingdomTokenV2Mock"
-      )) as NeokingdomTokenV2Mock__factory;
+      const NeokingdomTokenInternalV2MockFactory =
+        (await ethers.getContractFactory(
+          "NeokingdomTokenInternalV2Mock"
+        )) as NeokingdomTokenInternalV2Mock__factory;
 
       const tokenV2Contract = await upgrades.upgradeProxy(
         token.address,
-        NeokingdomTokenV2MockFactory
+        NeokingdomTokenInternalV2MockFactory
       );
       await tokenV2Contract.deployed();
 
       await expect(
         token.connect(user1).transfer(user2.address, 1)
-      ).revertedWith("NeokingdomToken: transfer amount exceeds unlocked tokens");
+      ).revertedWith(
+        "NeokingdomTokenInternal: transfer amount exceeds unlocked tokens"
+      );
 
       await expect(
         token.connect(user2).transfer(user1.address, 1)
-      ).revertedWith("NeokingdomToken: transfer amount exceeds unlocked tokens");
+      ).revertedWith(
+        "NeokingdomTokenInternal: transfer amount exceeds unlocked tokens"
+      );
     });
 
     it("should change events", async () => {
@@ -176,13 +183,14 @@ describe("Upgrade", () => {
         .emit(token, "VestingSet")
         .withArgs(user1.address, 31);
 
-      const NewNeokingdomTokenMockFactory = (await ethers.getContractFactory(
-        "NewNeokingdomTokenMock"
-      )) as NewNeokingdomTokenMock__factory;
+      const NewNeokingdomTokenInternalMockFactory =
+        (await ethers.getContractFactory(
+          "NewNeokingdomTokenInternalMock"
+        )) as NewNeokingdomTokenInternalMock__factory;
 
       const tokenV2Contract = await upgrades.upgradeProxy(
         token.address,
-        NewNeokingdomTokenMockFactory
+        NewNeokingdomTokenInternalMockFactory
       );
       await tokenV2Contract.deployed();
 

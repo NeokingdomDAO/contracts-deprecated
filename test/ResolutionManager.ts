@@ -7,8 +7,8 @@ import {
   ShareholderRegistryMock__factory,
   VotingMock,
   VotingMock__factory,
-  NeokingdomTokenMock,
-  NeokingdomTokenMock__factory,
+  NeokingdomTokenInternalMock,
+  NeokingdomTokenInternalMock__factory,
   ResolutionManager,
   ResolutionManager__factory,
   ResolutionExecutorMock,
@@ -32,7 +32,7 @@ describe("Resolution", () => {
   let investorStatus: string;
 
   let voting: VotingMock;
-  let token: NeokingdomTokenMock;
+  let token: NeokingdomTokenInternalMock;
   let resolution: ResolutionManager;
   let shareholderRegistry: ShareholderRegistryMock;
   let resolutionExecutorMock: ResolutionExecutorMock;
@@ -51,10 +51,10 @@ describe("Resolution", () => {
       deployer
     )) as VotingMock__factory;
 
-    const NeokingdomTokenMockFactory = (await ethers.getContractFactory(
-      "NeokingdomTokenMock",
+    const NeokingdomTokenInternalMockFactory = (await ethers.getContractFactory(
+      "NeokingdomTokenInternalMock",
       deployer
-    )) as NeokingdomTokenMock__factory;
+    )) as NeokingdomTokenInternalMock__factory;
 
     const ShareholderRegistryMockFactory = (await ethers.getContractFactory(
       "ShareholderRegistryMock",
@@ -75,8 +75,8 @@ describe("Resolution", () => {
     await voting.deployed();
 
     token = (await upgrades.deployProxy(
-      NeokingdomTokenMockFactory
-    )) as NeokingdomTokenMock;
+      NeokingdomTokenInternalMockFactory
+    )) as NeokingdomTokenInternalMock;
     await token.deployed();
 
     shareholderRegistry = (await upgrades.deployProxy(
@@ -339,9 +339,11 @@ describe("Resolution", () => {
         .setShareholderRegistry(managingBoard.address);
     });
 
-    it("allow the OPERATOR_ROLE to setNeokingdomToken", async () => {
+    it("allow the OPERATOR_ROLE to setNeokingdomTokenInternal", async () => {
       await resolution.grantRole(await roles.OPERATOR_ROLE(), user1.address);
-      await resolution.connect(user1).setNeokingdomToken(managingBoard.address);
+      await resolution
+        .connect(user1)
+        .setNeokingdomTokenInternal(managingBoard.address);
     });
 
     it("doesn't allow anyone not with OPERATOR_ROLE to setVoting", async () => {
@@ -363,11 +365,11 @@ describe("Resolution", () => {
           `is missing role ${await roles.OPERATOR_ROLE()}`
       );
     });
-    it("doesn't allow anyone not with OPERATOR_ROLE to setNeokingdomToken", async () => {
+    it("doesn't allow anyone not with OPERATOR_ROLE to setNeokingdomTokenInternal", async () => {
       await expect(
         resolution
           .connect(managingBoard)
-          .setNeokingdomToken(managingBoard.address)
+          .setNeokingdomTokenInternal(managingBoard.address)
       ).revertedWith(
         `AccessControl: account ${managingBoard.address.toLowerCase()} ` +
           `is missing role ${await roles.OPERATOR_ROLE()}`

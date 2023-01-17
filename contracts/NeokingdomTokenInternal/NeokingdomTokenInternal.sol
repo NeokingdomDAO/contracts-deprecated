@@ -4,19 +4,18 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./NeokingdomTokenSnapshot.sol";
-import { Roles } from "../extensions/Roles.sol";
+import "./NeokingdomTokenInternalSnapshot.sol";
+import {Roles} from "../extensions/Roles.sol";
 
-contract NeokingdomToken is
+contract NeokingdomTokenInternal is
     Initializable,
-    NeokingdomTokenSnapshot,
+    NeokingdomTokenInternalSnapshot,
     AccessControlUpgradeable
 {
-    function initialize(string memory name, string memory symbol)
-        public
-        override
-        initializer
-    {
+    function initialize(
+        string memory name,
+        string memory symbol
+    ) public override initializer {
         super.initialize(name, symbol);
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -35,35 +34,29 @@ contract NeokingdomToken is
         return _snapshot();
     }
 
-    function setVoting(IVoting voting)
-        external
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
+    function setVoting(
+        IVoting voting
+    ) external virtual onlyRole(Roles.OPERATOR_ROLE) {
         _setVoting(voting);
     }
 
-    function setShareholderRegistry(IShareholderRegistry shareholderRegistry)
-        external
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
+    function setShareholderRegistry(
+        IShareholderRegistry shareholderRegistry
+    ) external virtual onlyRole(Roles.OPERATOR_ROLE) {
         _setShareholderRegistry(shareholderRegistry);
     }
 
-    function mint(address to, uint256 amount)
-        public
-        virtual
-        onlyRole(Roles.RESOLUTION_ROLE)
-    {
+    function mint(
+        address to,
+        uint256 amount
+    ) public virtual onlyRole(Roles.RESOLUTION_ROLE) {
         _mint(to, amount);
     }
 
-    function mintVesting(address to, uint256 amount)
-        public
-        virtual
-        onlyRole(Roles.RESOLUTION_ROLE)
-    {
+    function mintVesting(
+        address to,
+        uint256 amount
+    ) public virtual onlyRole(Roles.RESOLUTION_ROLE) {
         _mintVesting(to, amount);
     }
 
@@ -75,19 +68,17 @@ contract NeokingdomToken is
         _matchOffer(from, to, amount);
     }
 
-    function setVesting(address to, uint256 amount)
-        public
-        virtual
-        onlyRole(Roles.OPERATOR_ROLE)
-    {
+    function setVesting(
+        address to,
+        uint256 amount
+    ) public virtual onlyRole(Roles.OPERATOR_ROLE) {
         _setVesting(to, amount);
     }
 
-    function burn(address account, uint256 amount)
-        public
-        virtual
-        onlyRole(Roles.RESOLUTION_ROLE)
-    {
+    function burn(
+        address account,
+        uint256 amount
+    ) public virtual onlyRole(Roles.RESOLUTION_ROLE) {
         super._burn(account, amount);
     }
 }

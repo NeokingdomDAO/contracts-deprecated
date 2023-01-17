@@ -1,11 +1,15 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, upgrades } from "hardhat";
-import { ShareholderRegistry, NeokingdomToken, Voting } from "../../typechain";
+import {
+  ShareholderRegistry,
+  NeokingdomTokenInternal,
+  Voting,
+} from "../../typechain";
 import { ResolutionManager } from "../../typechain";
 import {
   Voting__factory,
-  NeokingdomToken__factory,
+  NeokingdomTokenInternal__factory,
   ShareholderRegistry__factory,
   ResolutionManager__factory,
 } from "../../typechain";
@@ -14,9 +18,11 @@ import { roles } from "./roles";
 export async function deployDAO(
   deployer: SignerWithAddress,
   managingBoard: SignerWithAddress
-): Promise<[Voting, NeokingdomToken, ShareholderRegistry, ResolutionManager]> {
+): Promise<
+  [Voting, NeokingdomTokenInternal, ShareholderRegistry, ResolutionManager]
+> {
   let voting: Voting,
-    token: NeokingdomToken,
+    token: NeokingdomTokenInternal,
     shareholderRegistry: ShareholderRegistry,
     resolution: ResolutionManager;
 
@@ -25,10 +31,10 @@ export async function deployDAO(
     deployer
   )) as Voting__factory;
 
-  const NeokingdomTokenFactory = (await ethers.getContractFactory(
-    "NeokingdomToken",
+  const NeokingdomTokenInternalFactory = (await ethers.getContractFactory(
+    "NeokingdomTokenInternal",
     deployer
-  )) as NeokingdomToken__factory;
+  )) as NeokingdomTokenInternal__factory;
 
   const ShareholderRegistryFactory = (await ethers.getContractFactory(
     "ShareholderRegistry",
@@ -46,10 +52,10 @@ export async function deployDAO(
   await voting.deployed();
 
   token = (await upgrades.deployProxy(
-    NeokingdomTokenFactory,
+    NeokingdomTokenInternalFactory,
     ["TestToken", "TT"],
     { initializer: "initialize" }
-  )) as NeokingdomToken;
+  )) as NeokingdomTokenInternal;
   await token.deployed();
 
   shareholderRegistry = (await upgrades.deployProxy(
